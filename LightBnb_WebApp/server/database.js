@@ -55,8 +55,7 @@ const addUser =  function(user) {
     .query(`INSERT INTO users (name, email, password) 
     VALUES($1, $2, $3) RETURNING *;`, [user.name, user.email, user.password])
     .then((result) => {
-      console.log(result.rows)
-      // return result.rows[0]
+      return result.rows[0]
     })
     .catch((err) => {
       console.log(err.message);
@@ -90,8 +89,6 @@ exports.getAllReservations = getAllReservations;
  * @return {Promise<[{}]>}  A promise to the properties.
  */
 const getAllProperties = (options, limit = 10) => {
-
-  console.log(options)
   
   const queryParams = [];
   
@@ -143,8 +140,6 @@ const getAllProperties = (options, limit = 10) => {
   LIMIT $${queryParams.length};
   `;
 
-  console.log(queryString, queryParams)
-
   return pool.query(queryString, queryParams).then((res) => res.rows);
 };
 exports.getAllProperties = getAllProperties;
@@ -156,9 +151,29 @@ exports.getAllProperties = getAllProperties;
  * @return {Promise<{}>} A promise to the property.
  */
 const addProperty = function(property) {
-  const propertyId = Object.keys(properties).length + 1;
-  property.id = propertyId;
-  properties[propertyId] = property;
-  return Promise.resolve(property);
+  // console.log(property)
+
+  queryParams = []
+  queryParams.push(property.title) //$1
+  queryParams.push(property.description) //$2
+  queryParams.push(property.number_of_bedrooms) //$3
+  queryParams.push(property.number_of_bathrooms) //$4
+  queryParams.push(property.parking_spaces) //$5
+  queryParams.push(property.cost_per_night) //$6
+  queryParams.push(property.thumbnail_photo_url) //$7
+  queryParams.push(property.cover_photo_url) //$8
+  queryParams.push(property.street) //$9
+  queryParams.push(property.country) //$10
+  queryParams.push(property.city) //$11
+  queryParams.push(property.province) //$12
+  queryParams.push(property.post_code) //$13
+
+  return pool
+    .query(`INSERT INTO properties (title, description, number_of_bedrooms, number_of_bathrooms, parking_spaces, cost_per_night, thumbnail_photo_url, cover_photo_url, street, country, city, province, post_code)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) RETURNING *;`, queryParams)
+    .then((res) => (res.rows))
+    .catch((err) => {
+      console.log(err.message);
+    })
 }
 exports.addProperty = addProperty;
